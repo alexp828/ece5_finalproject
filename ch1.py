@@ -38,6 +38,7 @@ while(True):
     # Capture frame-by-frame
     ret, frame = cap.read()
     frame2 = np.copy(frame)
+    frame = cv2.resize(frame, None, None, fx=0.5, fy=0.5)
 
     img_gray = (cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY))
     # img_gray = cv2.bilateralFilter(img_gray,9,75,75)
@@ -81,7 +82,7 @@ while(True):
             ROI_1 = cv2.resize(ROI, ROI_SIZE, interpolation=cv2.INTER_NEAREST)
             ROI_2 = cv2.resize(ROI, ROI_SIZE, interpolation=cv2.INTER_AREA)
             # TODO have a function for ROI_2
-            ROI = ROI_2
+            ROI = 0.75*ROI_2 + 0.25*ROI_1
             ROI = np.reshape(ROI, DIGIT_DIM**2)
 
             r1 = (int(b1[0]), int(b1[1]))
@@ -95,6 +96,7 @@ while(True):
             pass
 
     cv2.imshow('webcam view', frame)
+    #cv2.imshow('thresh view', img_thresh)
     # cv2.imshow('gray view', img_gray)
     # cv2.imshow('thresh view', img_thresh)
     if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -146,7 +148,7 @@ for rect in bounding_boxes:
     ROI_1 = cv2.resize(ROI, ROI_SIZE, interpolation=cv2.INTER_NEAREST)
     ROI_2 = cv2.resize(ROI, ROI_SIZE, interpolation=cv2.INTER_AREA)
     # TODO have a function for ROI_2
-    ROI = ROI_2
+    ROI = 0.75*ROI_2 + 0.25*ROI_1
     ROI = np.reshape(ROI, DIGIT_DIM**2)
 
     regions = np.append(regions, ROI)
