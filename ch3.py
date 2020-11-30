@@ -14,6 +14,7 @@ References
 (2) https://scikit-learn.org/stable/auto_examples/classification/plot_digits_classification.html
 (3) https://debuggercafe.com/image-classification-with-mnist-dataset/
 (4) https://stackoverflow.com/questions/2828059/sorting-arrays-in-numpy-by-column
+(5) https://futurestud.io/tutorials/matplotlib-save-plots-as-file
 
 """
 
@@ -183,5 +184,7 @@ plt.subplot(2,2,4)
 plt.title("frame")
 plt.imshow(frame)
 plt.show()
+
+f.savefig("img_stages.pdf")
 
 ## PART 4: ARDUINO... GET NUMBER FROM predictions
