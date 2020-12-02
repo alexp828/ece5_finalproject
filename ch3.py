@@ -15,6 +15,7 @@ References
 (3) https://debuggercafe.com/image-classification-with-mnist-dataset/
 (4) https://stackoverflow.com/questions/2828059/sorting-arrays-in-numpy-by-column
 (5) https://futurestud.io/tutorials/matplotlib-save-plots-as-file
+(6) https://opencv-python-tutroals.readthedocs.io/en/latest/py_tutorials/py_imgproc/py_morphological_ops/py_morphological_ops.html
 
 """
 
@@ -31,7 +32,26 @@ img_raw = None
 img_gray = None
 img_thresh = None
 
-# Part 3: advanced image processing
+# Part 3b: image kernels
+"""
+Given a thresholded image, make it easier to find contours
+"""
+def convolute(img_thresh):
+
+    # APPLY KERNEL TO IMAGE 3 times
+    #kernel = np.array([[0, 1, 0], [1, 1, 1], [0, 1, 0]])
+    #img_thresh = cv2.filter2D(img_thresh, -1, kernel)
+    #img_thresh = cv2.filter2D(img_thresh, -1, kernel)
+    #img_thresh = cv2.filter2D(img_thresh, -1, kernel)
+
+    kernel = np.ones((5,5), np.uint8)
+    img_thresh = cv2.dilate(img_thresh, kernel, iterations=5)
+
+    return img_thresh
+    
+
+
+# Part 3: image processing
 """
 Given a frame (image), return the marked up frame
 and an array of ROI (regions of interest)
@@ -56,6 +76,9 @@ def get_predictions(frame):
     ret, img_thresh = cv2.threshold(img_gray, THRESH_VALUE, 255, cv2.THRESH_BINARY_INV)
     # thresh_2 = cv2.bitwise_not(img_thresh)
 
+    # APPLY KERNEL FUNCTION HERE
+    #img_thresh = convolute(img_thresh)
+
     # CONTOURS, BOUNDING BOXES
     contours, hierarchy = cv2.findContours(img_thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     bounding_boxes = [cv2.boundingRect(c) for c in contours]
@@ -69,7 +92,7 @@ def get_predictions(frame):
             width = rect[2]
             
             # check to ensure that small artifacts (eg noise, scratch marks) aren't counted as numbers
-            if (height * width) < BOUNDING_BOX_SIZE_THRESH:
+            if (height * height) < BOUNDING_BOX_SIZE_THRESH:
                 continue
 
             box_ctr = box_ctr + 1
@@ -147,7 +170,9 @@ while(True):
         predictions = res[1]
 
         cv2.imshow('webcam view', frame)
-    except:
+        cv2.imshow('thresh view', img_thresh)
+    except Exception as e:
+        print(e)
         pass
 
     if cv2.waitKey(1) & 0xFF == ord('q'):
@@ -157,14 +182,21 @@ while(True):
 # When everything done, release the capture
 cap.release()
 cv2.destroyAllWindows()
-# cv2.imshow('frame', frame)
 predictions = np.reshape(predictions, (len(predictions)//2, 2))
 predictions = predictions[predictions[:,-1].argsort()]
+
+keycode = 0
+power = 1
 
 for i in range(len(predictions)):
     prediction = predictions[i][0]
     xval = predictions[i][1]
+    keycode = keycode + (power * predictions[len(predictions)-i-1][0])
+    power = power * 10
     # print("Prediction: " + str(prediction) + "\nx: " + str(xval) + "\n")
+
+keycode = int(keycode)
+print("Keycode: " + str(keycode))
 
 cv2.waitKey(0)
 
