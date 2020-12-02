@@ -22,10 +22,12 @@ References
 WEBCAM_OUTPUT_PATH = 'output.png'
 DIGIT_DIM = 8
 ROI_SIZE = (DIGIT_DIM, DIGIT_DIM)
-THRESH_VALUE = 90
+THRESH_VALUE = 140
 FRAME_RESOLUTION = (1280, 720)
 BLUR_AMOUNT = 5
-BOUNDING_BOX_ADJ = 5
+BOUNDING_BOX_ADJ = 0
+BOX_X_ADJ = 5
+BOX_Y_ADJ = 0
 BOUNDING_BOX_SIZE_THRESH = 2500
 
 img_raw = None
@@ -45,7 +47,7 @@ def convolute(img_thresh):
     #img_thresh = cv2.filter2D(img_thresh, -1, kernel)
 
     kernel = np.ones((5,5), np.uint8)
-    img_thresh = cv2.dilate(img_thresh, kernel, iterations=5)
+    img_thresh = cv2.dilate(img_thresh, kernel, iterations=1)
 
     return img_thresh
     
@@ -73,8 +75,9 @@ def get_predictions(frame):
     img_gray = cv2.GaussianBlur(img_gray, (BLUR_AMOUNT, BLUR_AMOUNT), 0)
 
     # THRESHOLD HERE
-    ret, img_thresh = cv2.threshold(img_gray, THRESH_VALUE, 255, cv2.THRESH_BINARY_INV)
-    # thresh_2 = cv2.bitwise_not(img_thresh)
+    #ret, img_thresh = cv2.threshold(img_gray, THRESH_VALUE, 255, cv2.THRESH_BINARY_INV)
+    #img_thresh = cv2.adaptiveThreshold(img_gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+    img_thresh = cv2.adaptiveThreshold(img_gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 2)
 
     # APPLY KERNEL FUNCTION HERE
     #img_thresh = convolute(img_thresh)
@@ -120,6 +123,7 @@ def get_predictions(frame):
 
             # TODO have a function for ROI_2, for now just return weighted sum
             ROI = 0.75*ROI_2 + 0.25*ROI_1
+            ROI = ROI_2
             ROI = np.reshape(ROI, DIGIT_DIM**2)
 
             r1 = (int(b1[0]), int(b1[1]))
